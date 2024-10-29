@@ -1,17 +1,17 @@
-// api key : 82005d27a116c2880c8f0fcb866998a0
-
 // SELECT ELEMENTS
 const iconElement = document.querySelector(".weather-icon");
 const tempElement = document.querySelector(".temperature-value p");
 const descElement = document.querySelector(".temperature-description p");
 const locationElement = document.querySelector(".location p");
 const notificationElement = document.querySelector(".notification");
+const searchBox = document.querySelector(".search-box");
+const searchButton = document.querySelector(".search-button");
 
 // App data
 const weather = {};
 
 weather.temperature = {
-    unit : "celsius"
+    unit: "celsius"
 }
 
 // APP CONSTS AND VARS
@@ -38,17 +38,19 @@ function setPosition(position){
 // SHOW ERROR WHEN THERE IS AN ISSUE WITH GEOLOCATION SERVICE
 function showError(error){
     notificationElement.style.display = "block";
-    notificationElement.innerHTML = `<p> ${error.message} </p>`;
+    notificationElement.innerHTML = `<p>${error.message}</p>`;
+    setTimeout(() => {
+        notificationElement.style.display = "none";
+    }, 3000);
 }
 
 // GET WEATHER FROM API PROVIDER
 function getWeather(latitude, longitude){
-    let api = `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${key}`;
+    let api = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${key}`;
     
     fetch(api)
         .then(function(response){
-            let data = response.json();
-            return data;
+            return response.json();
         })
         .then(function(data){
             weather.temperature.value = Math.floor(data.main.temp - KELVIN);
@@ -59,6 +61,34 @@ function getWeather(latitude, longitude){
         })
         .then(function(){
             displayWeather();
+        })
+        .catch(function(){
+            showError({message: "Error fetching weather data"});
+        });
+}
+
+// GET WEATHER BY CITY NAME
+function getWeatherByCity(city){
+    let api = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}`;
+    
+    fetch(api)
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(data){
+            if(data.cod === "404"){
+                showError({message: "City not found, please try again"});
+                return;
+            }
+            weather.temperature.value = Math.floor(data.main.temp - KELVIN);
+            weather.description = data.weather[0].description;
+            weather.iconId = data.weather[0].icon;
+            weather.city = data.name;
+            weather.country = data.sys.country;
+            displayWeather();
+        })
+        .catch(function(){
+            showError({message: "Error fetching weather data"});
         });
 }
 
@@ -75,11 +105,11 @@ function celsiusToFahrenheit(temperature){
     return (temperature * 9/5) + 32;
 }
 
-// WHEN THE USER CLICKS ON THE TEMPERATURE ELEMENET
+// WHEN THE USER CLICKS ON THE TEMPERATURE ELEMENT
 tempElement.addEventListener("click", function(){
     if(weather.temperature.value === undefined) return;
     
-    if(weather.temperature.unit == "celsius"){
+    if(weather.temperature.unit === "celsius"){
         let fahrenheit = celsiusToFahrenheit(weather.temperature.value);
         fahrenheit = Math.floor(fahrenheit);
         
@@ -87,7 +117,20 @@ tempElement.addEventListener("click", function(){
         weather.temperature.unit = "fahrenheit";
     }else{
         tempElement.innerHTML = `${weather.temperature.value}°<span>C</span>`;
-        weather.temperature.unit = "celsius"
+        weather.temperature.unit = "celsius";
     }
 });
 
+// SEARCH BUTTON CLICK EVENT
+searchButton.addEventListener("click", function(){
+    const city = searchBox.value.trim();
+    if(city) getWeatherByCity(city);
+});
+
+// ENTER KEY PRESS EVENT
+searchBox.addEventListener("keypress", function(event){
+    if(event.keyCode === 13) {
+        const city = searchBox.value.trim();
+        if(city) getWeatherByCity(city);
+    }
+});
