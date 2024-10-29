@@ -1,18 +1,27 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Weather App - JavaScript</title>
-    <link rel="stylesheet" href="font/Rimouski.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
     <div class="container">
         <div class="app-title">
-            <p>Weather</p>
+            <p>Weather App</p>
         </div>
-        <div class="notification"> </div>
+        
+        <div class="search-container">
+            <input type="text" class="search-box" placeholder="Enter city name...">
+            <button class="search-button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+
+        <div class="notification"></div>
+
         <div class="weather-container">
             <div class="weather-icon">
                 <img src="icons/unknown.png" alt="">
@@ -21,7 +30,7 @@
                 <p>- °<span>C</span></p>
             </div>
             <div class="temperature-description">
-                <p> - </p>
+                <p>-</p>
             </div>
             <div class="location">
                 <p>-</p>
@@ -32,5 +41,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-
-
